@@ -8,7 +8,7 @@ lsp.ensure_installed({
 	"jsonls",
 	"bufls",
 	"pyright",
-	"tsserver",
+	-- "tsserver", -- TODO(sina): use another type script server
 	"lua_ls"
 })
 
@@ -21,7 +21,7 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
 
 local on_attach = function(client, bufnr)
 	-- local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
-	-- local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+	-- local function set_option(bufnr, ...) end
 	-- Enable completion triggered by <c-x><c-o>
 	-- buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
 

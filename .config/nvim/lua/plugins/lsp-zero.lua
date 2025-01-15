@@ -64,29 +64,95 @@ return {
       vim.api.nvim_create_autocmd('LspAttach', {
         desc = 'LSP actions',
         callback = function(event)
-          local opts = {buffer = event.buf}
+            local opts = {buffer = event.buf}
 
-          vim.keymap.set('n', 'K', '<cmd>lua vim.lsp.buf.hover()<cr>', opts)
-          vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<cr>', opts)
-          vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<cr>', opts)
-          vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<cr>', opts)
-          vim.keymap.set('n', 'go', '<cmd>lua vim.lsp.buf.type_definition()<cr>', opts)
-          vim.keymap.set('n', 'gr', '<cmd>lua vim.lsp.buf.references()<cr>', opts)
-          vim.keymap.set('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<cr>', opts)
-          vim.keymap.set('n', '<F2>', '<cmd>lua vim.lsp.buf.rename()<cr>', opts)
-          vim.keymap.set({'n', 'x'}, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
-          vim.keymap.set('n', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>', opts)
+            vim.keymap.set('n', '<leader>vd', vim.diagnostic.open_float)
+            vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
+            vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
+            vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
+            -- Reformat and Refactor
+            vim.keymap.set("n", '<leader>rn', function() vim.lsp.buf.rename() end, opts)
+            vim.keymap.set("n", '<leader>ca', function() vim.lsp.buf.code_action() end, opts)
+            vim.keymap.set("n", '<leader>f', function() vim.lsp.buf.format({ async = true }) end, opts)
+
+            -- Workspace
+            vim.keymap.set("n", '<leader>wa', function() vim.lsp.buf.add_workspace_folder() end, opts)
+            vim.keymap.set("n", '<leader>wr', function() vim.lsp.buf.remove_workspace_folder() end, opts)
+            vim.keymap.set("n", '<leader>wl', function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end, opts)
+
+            vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+            vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+            vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+            vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+            vim.keymap.set('n', 'go', vim.lsp.buf.type_definition, opts)
+            vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+            vim.keymap.set('n', 'gs', vim.lsp.buf.signature_help, opts)
+
+            local id = vim.tbl_get(event, 'data', 'client_id')
+            local client = id and vim.lsp.get_client_by_id(id)
+            if client == nil then
+                return
+            end
+
+            if client.server_capabilities.document_formatting then
+                    vim.api.nvim_exec([[
+                 augroup LspAutocommands
+                     autocmd! * <buffer>
+                     autocmd BufWritePost <buffer> lua buf.formatting()
+                 augroup END
+                 ]], true)
+           end
         end,
       })
 
       require('mason-lspconfig').setup({
-        ensure_installed = {},
+        ensure_installed = {
+            "gopls",
+            "bashls",
+            "yamlls",
+            "jsonls",
+            "buf_ls",
+            "pyright",
+            "biome",
+            "lua_ls"
+        },
         handlers = {
           -- this first function is the "default handler"
           -- it applies to every language server without a "custom handler"
           function(server_name)
             require('lspconfig')[server_name].setup({})
           end,
+          lua_ls = function()
+            require('lspconfig').lua_ls.setup({
+                settings = {
+                    Lua = {
+                        completion = {
+                          callSnippet = "Replace"
+                        },
+                        diagnostics = {
+                            -- Get the language server to recognize the `vim` global
+                            globals = {'vim'},
+                        },
+                    },
+                }
+            })
+          end,
+          gopls = function()
+            require("lspconfig").gopls.setup({
+                settings = {
+                  gopls = {
+                    analyses = {
+                      unusedparams = true,
+                    },
+                    staticcheck = true,
+                  },
+                },
+
+                flags = {
+                  debounce_text_changes = 150,
+                },
+            })
+          end
         }
       })
     end
