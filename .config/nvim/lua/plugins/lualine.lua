@@ -17,7 +17,6 @@ return {
                 section_separators = { left = '', right = '' },
                 disabled_filetypes = {
                     statusline = {},
-                    winbar = {},
                 },
                 ignore_focus = {},
                 always_divide_middle = true,
@@ -40,11 +39,20 @@ return {
                 lualine_a = {},
                 lualine_b = {},
                 lualine_c = { 'filename' },
-                lualine_x = { 'location' }, lualine_y = {},
+                lualine_x = { 'location' },
+                lualine_y = {},
                 lualine_z = {}
             },
             tabline = {},
-            winbar = {},
+            winbar = {
+                lualine_c = {
+                    {
+                        "navic",
+                        color_correction = nil,
+                        navic_opts = nil
+                    }
+                }
+            },
             inactive_winbar = {},
             extensions = {}
         },
