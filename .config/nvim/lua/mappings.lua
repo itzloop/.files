@@ -38,8 +38,8 @@ set_key("v", "<", "<gv", { noremap = true, silent = true} )
 set_key("v", ">", ">gv", { noremap = true, silent = true} )
 
 -- Tab buffer switch
-set_key("n", "<Tab>", ":bnext<CR>", { noremap = true, silent = true} )
-set_key("n", "<S-Tab>", ":bprevious<CR>", { noremap = true, silent = true} )
+-- set_key("n", "<Tab>", ":bnext<CR>", { noremap = true, silent = true} )
+-- set_key("n", "<S-Tab>", ":bprevious<CR>", { noremap = true, silent = true} )
 
 -- Move selected line in visual mode
 set_key("x", "J", ":move '>+1<CR>gv-gv'", { noremap = true, silent = true} )

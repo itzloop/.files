@@ -8,10 +8,36 @@ local function get_arguments()
     end)
 end
 
+
+-- A helper function to walk up parent directories until we find a venv.
+local function find_venv_python()
+    local cwd = vim.fn.getcwd()
+    -- Break the current path into parts so we can go up one by one
+    local path_parts = vim.split(cwd, '/')
+
+    -- Iterate from deepest folder to root
+    for i = #path_parts, 1, -1 do
+        local candidate = table.concat(vim.list_slice(path_parts, 1, i), '/')
+        local dot_venv  = candidate .. '/.venv/bin/python'
+        local venv      = candidate .. '/venv/bin/python'
+
+        -- Check if either .venv/bin/python or venv/bin/python is executable
+        if vim.fn.executable(dot_venv) == 1 then
+            return dot_venv
+        elseif vim.fn.executable(venv) == 1 then
+            return venv
+        end
+    end
+
+    -- If nothing found, just fall back to whatever python is in your PATH
+    return 'python'
+end
+
 return {
     {
         "rcarriga/nvim-dap-ui",
         dependencies = { "mfussenegger/nvim-dap", "nvim-neotest/nvim-nio" },
+        lazy = false,
         init = function()
             vim.keymap.set('n', '<F5>', function() require("dap").continue() end, { noremap = true, silent = true })
             vim.keymap.set('n', '<F8>', function() require("dap").step_over() end, { noremap = true, silent = true })
@@ -59,6 +85,17 @@ return {
                 request = "launch",
                 type = "go",
             })
+        end
+    },
+    {
+        "mfussenegger/nvim-dap-python",
+        dependencies = {
+            "mfussenegger/nvim-dap",
+            -- If you use dap-ui, also add: "rcarriga/nvim-dap-ui"
+        },
+        ft = { "python" },
+        config = function()
+            require("dap-python").setup(find_venv_python())
         end
     }
 }

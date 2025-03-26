@@ -1,8 +1,19 @@
 return {
+    { 'nvim-java/nvim-java' },
     {
         "SmiteshP/nvim-navic",
-        dependencies = "neovim/nvim-lspconfig"
-
+        dependencies = "neovim/nvim-lspconfig",
+        lazy = false,
+        priority = 999,
+        opts = {
+            lsp = {
+                auto_attach = true,
+            }
+        }
+    },
+    {
+        'towolf/vim-helm',
+        ft = 'helm'
     },
     {
         'williamboman/mason.nvim',
@@ -60,6 +71,9 @@ return {
             vim.opt.signcolumn = 'yes'
         end,
         config = function()
+            -- setup java before lspconfig
+            require('java').setup()
+
             local lsp_defaults = require('lspconfig').util.default_config
 
             -- Add cmp_nvim_lsp capabilities settings to lspconfig
@@ -116,17 +130,30 @@ return {
                     end
                 end,
             })
-
+            -- fix helmls
+            vim.api.nvim_create_autocmd({ 'BufNewFile', 'BufRead' }, {
+                desc = "Fix helm ls",
+                pattern = "*.yaml",
+                callback = function()
+                    local file_path = vim.fn.expand("%:p") -- Get full path of current file
+                    if string.match(file_path, "/chart/") then
+                        vim.opt_local.filetype = 'helm'
+                    end
+                end
+            })
             require('mason-lspconfig').setup({
+                automatic_installation = true,
                 ensure_installed = {
                     "gopls",
                     "bashls",
                     "yamlls",
                     "jsonls",
                     "buf_ls",
-                    "pyright",
+                    "basedpyright",
                     "biome",
-                    "lua_ls"
+                    "lua_ls",
+                    "helm_ls",
+                    "jdtls"
                 },
                 handlers = {
                     -- this first function is the "default handler"
@@ -136,9 +163,6 @@ return {
                     end,
                     lua_ls = function()
                         require('lspconfig').lua_ls.setup({
-                            on_attach = function(client, bufnr)
-                                require("nvim-navic").attach(client, bufnr)
-                            end,
                             settings = {
                                 Lua = {
                                     completion = {
@@ -154,9 +178,6 @@ return {
                     end,
                     gopls = function()
                         require("lspconfig").gopls.setup({
-                            on_attach = function(client, bufnr)
-                                require("nvim-navic").attach(client, bufnr)
-                            end,
                             settings = {
                                 gopls = {
                                     analyses = {
@@ -170,7 +191,7 @@ return {
                                 debounce_text_changes = 150,
                             },
                         })
-                    end
+                    end,
                 }
             })
         end
