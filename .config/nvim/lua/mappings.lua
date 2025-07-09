@@ -4,8 +4,8 @@ local set_key = vim.keymap.set
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
--- :Explore shortcut
-vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
+-- :Oil
+vim.keymap.set("n", "<leader>e", ":Oil<CR>")
 
 -- setting no-ops
 set_key("i", "<C-Space>", "<NOP>", { noremap = true, silent = true } )
@@ -58,9 +58,6 @@ set_key("n", "<Leader>fg", ":Telescope live_grep<CR>", {noremap = true, silent =
 set_key("n", "<Leader>fb", ":Telescope buffers<CR>", {noremap = true, silent = true} )
 set_key("n", "<Leader>fh", ":Telescope help_tags<CR>", {noremap = true, silent = true} )
 set_key("n", "<Leader>@", ":Telescope treesitter<CR>", {noremap = true, silent = true} )
-
--- explorer
-set_key("n", "<Leader>e", ":Telescope file_browser<CR>", {noremap = true, silent = true} )
 
 -- line/block movement
 set_key("v", "J", ":m '>+1<CR>gv=gv", {noremap = true, silent = true} )

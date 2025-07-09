@@ -32,6 +32,7 @@ return {
                     {
                         name = 'nvim_lsp',
                     },
+                    { name = 'render-markdown' },
                     {
                         name = "lazydev",
                         group_index = 0, -- set group index to 0 to skip loading LuaLS completions
@@ -72,7 +73,7 @@ return {
         end,
         config = function()
             -- setup java before lspconfig
-            require('java').setup()
+            -- require('java').setup()
 
             local lsp_defaults = require('lspconfig').util.default_config
 
@@ -89,12 +90,15 @@ return {
             vim.api.nvim_create_autocmd('LspAttach', {
                 desc = 'LSP actions',
                 callback = function(event)
+                    local builtin = require("telescope.builtin")
                     local opts = { buffer = event.buf }
 
-                    vim.keymap.set('n', '<leader>vd', vim.diagnostic.open_float)
-                    vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
-                    vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
-                    vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
+                    vim.keymap.set('n', '<leader>di', vim.diagnostic.open_float)
+                    vim.keymap.set('n', '[d', function() vim.diagnostic.jump({ count = 1, float = true }) end)
+                    vim.keymap.set('n', ']d', function() vim.diagnostic.jump({ count = -1, float = true }) end)
+                    vim.keymap.set('n', '<leader>df', builtin.diagnostics)
+
+
                     -- Reformat and Refactor
                     vim.keymap.set("n", '<leader>rn', function() vim.lsp.buf.rename() end, opts)
                     vim.keymap.set("n", '<leader>ca', function() vim.lsp.buf.code_action() end, opts)
@@ -107,27 +111,13 @@ return {
                         function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end, opts)
 
                     vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-                    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
                     vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
                     vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-                    vim.keymap.set('n', 'go', vim.lsp.buf.type_definition, opts)
-                    vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
                     vim.keymap.set('n', 'gs', vim.lsp.buf.signature_help, opts)
-
-                    local id = vim.tbl_get(event, 'data', 'client_id')
-                    local client = id and vim.lsp.get_client_by_id(id)
-                    if client == nil then
-                        return
-                    end
-
-                    if client.server_capabilities.document_formatting then
-                        vim.api.nvim_exec([[
-                 augroup LspAutocommands
-                     autocmd! * <buffer>
-                     autocmd BufWritePost <buffer> lua buf.formatting()
-                 augroup END
-                 ]], true)
-                    end
+                    vim.keymap.set('n', 'gd', builtin.lsp_definitions, opts)
+                    vim.keymap.set('n', 'go', builtin.lsp_type_definitions, opts)
+                    vim.keymap.set('n', 'gr', builtin.lsp_references, opts)
+                    vim.keymap.set("n", "<Leader>ds", builtin.lsp_document_symbols, opts)
                 end,
             })
             -- fix helmls
