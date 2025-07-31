@@ -8,6 +8,8 @@ VAULT="$HOME/.vault"
 SSH="$HOME/.ssh"
 SSH_ARVHIVE="$VAULT/ssh.tar.gz"
 
+mkdir -p "$VAULT"
+
 # expand aliases so 'config' would be recognized
 shopt -s expand_aliases
 source ~/Dotfiles/.zsh_aliases # TODO move config alias somewhere else

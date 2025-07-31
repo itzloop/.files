@@ -74,7 +74,6 @@ return {
         config = function()
             -- setup java before lspconfig
             -- require('java').setup()
-
             local lsp_defaults = require('lspconfig').util.default_config
 
             -- Add cmp_nvim_lsp capabilities settings to lspconfig
@@ -131,8 +130,51 @@ return {
                     end
                 end
             })
+
+
+            vim.lsp.config.lua_ls = {
+                settings = {
+                    Lua = {
+                        completion = {
+                            callSnippet = "Replace"
+                        },
+                        diagnostics = {
+                            -- Get the language server to recognize the `vim` global
+                            globals = { 'vim' },
+                        },
+                    },
+                }
+            }
+
+            vim.lsp.config.gopls = {
+                cmd = { "gopls", "serve", "-mcp.listen=localhost:8092" },
+                settings = {
+                    gopls = {
+                        analyses = {
+                            unusedparams = true,
+                        },
+                        staticcheck = true,
+                    },
+                },
+                flags = {
+                    debounce_text_changes = 150,
+                    exit_timeout = 30,
+                },
+            }
+
             require('mason-lspconfig').setup({
-                automatic_installation = true,
+                automatic_enable = {
+                    "gopls",
+                    "bashls",
+                    "yamlls",
+                    "jsonls",
+                    "buf_ls",
+                    "basedpyright",
+                    "biome",
+                    "lua_ls",
+                    "helm_ls",
+                    "jdtls"
+                },
                 ensure_installed = {
                     "gopls",
                     "bashls",
@@ -149,38 +191,12 @@ return {
                     -- this first function is the "default handler"
                     -- it applies to every language server without a "custom handler"
                     function(server_name)
-                        require('lspconfig')[server_name].setup({})
+                        print("default handler:" .. server_name .. ": hello?")
+                        vim.lsp.config(server_name, {})
                     end,
                     lua_ls = function()
-                        require('lspconfig').lua_ls.setup({
-                            settings = {
-                                Lua = {
-                                    completion = {
-                                        callSnippet = "Replace"
-                                    },
-                                    diagnostics = {
-                                        -- Get the language server to recognize the `vim` global
-                                        globals = { 'vim' },
-                                    },
-                                },
-                            }
-                        })
                     end,
                     gopls = function()
-                        require("lspconfig").gopls.setup({
-                            settings = {
-                                gopls = {
-                                    analyses = {
-                                        unusedparams = true,
-                                    },
-                                    staticcheck = true,
-                                },
-                            },
-
-                            flags = {
-                                debounce_text_changes = 150,
-                            },
-                        })
                     end,
                 }
             })

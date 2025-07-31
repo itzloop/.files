@@ -119,7 +119,7 @@ return {
         "mfussenegger/nvim-dap-python",
         dependencies = {
             "mfussenegger/nvim-dap",
-            -- If you use dap-ui, also add: "rcarriga/nvim-dap-ui"
+            "rcarriga/nvim-dap-ui",
         },
         ft = { "python" },
         config = function()
