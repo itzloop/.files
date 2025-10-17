@@ -22,7 +22,11 @@ return {
     },
     -- Autocompletion
     {
-        'hrsh7th/nvim-cmp',
+        "hrsh7th/cmp-nvim-lsp-signature-help",
+        dependencies = "hrsh7th/nvim-cmp",
+    },
+    {
+        "hrsh7th/nvim-cmp",
         event = 'InsertEnter',
         config = function()
             local cmp = require('cmp')
@@ -32,6 +36,7 @@ return {
                     {
                         name = 'nvim_lsp',
                     },
+                    { name = "nvim_lsp_signature_help" },
                     { name = 'render-markdown' },
                     {
                         name = "lazydev",
@@ -173,7 +178,8 @@ return {
                     "biome",
                     "lua_ls",
                     "helm_ls",
-                    "jdtls"
+                    "jdtls",
+                    "jinja_lsp"
                 },
                 ensure_installed = {
                     "gopls",

@@ -73,9 +73,9 @@ vim.g.tex_flavor = "latex"
 
 vim.o.arabicshape = false
 -- folding
-vim.opt.foldlevel = 20
 -- vim.opt.foldlevelstart = 1
 -- vim.opt.foldnestmax = 4
+vim.opt.foldlevel = 20
 vim.opt.foldmethod = "expr"
 vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 -- vim.opt.foldtext = "v:lua.vim.treesitter.foldtext()"
