@@ -26,23 +26,67 @@ return {
         dependencies = "hrsh7th/nvim-cmp",
     },
     {
+        "L3MON4D3/LuaSnip",
+        -- follow latest release.
+        version = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
+        -- install jsregexp (optional!).
+        build = "make install_jsregexp"
+    },
+    { 'saadparwaiz1/cmp_luasnip', dependencies = "L3MON4D3/LuaSnip" },
+    {
+        "Dan7h3x/signup.nvim",
+        branch = "main",
+        opts = {
+            active_parameter_colors = {
+                fg = "#f5c2e7",
+                bg = "#3b4261",
+            },
+            max_height = 10,
+            max_width = 120,
+        },
+        config = function(_, opts)
+            require("signup").setup(opts)
+        end
+    },
+    {
         "hrsh7th/nvim-cmp",
-        event = 'InsertEnter',
-        config = function()
-            local cmp = require('cmp')
+        event = "InsertEnter",
+        dependencies = {
+            "hrsh7th/cmp-nvim-lsp",
+            "hrsh7th/cmp-buffer",
+            "hrsh7th/cmp-path",
+        },
+        opts = function()
+            local cmp = require("cmp")
+            local defaults = require("cmp.config.default")()
+            local auto_select = true
 
-            cmp.setup({
-                sources = {
-                    {
-                        name = 'nvim_lsp',
-                    },
-                    { name = "nvim_lsp_signature_help" },
-                    { name = 'render-markdown' },
-                    {
-                        name = "lazydev",
-                        group_index = 0, -- set group index to 0 to skip loading LuaLS completions
-                    },
+            return {
+                auto_brackets = {}, -- configure any filetype to auto add brackets
+                completion = {
+                    completeopt = "menu,menuone,noinsert" .. (auto_select and "" or ",noselect"),
                 },
+                preselect = auto_select and cmp.PreselectMode.Item or cmp.PreselectMode.None,
+                -- sources = {
+                --     {
+                --         name = 'nvim_lsp',
+                --     },
+                --     { name = "nvim_lsp_signature_help" },
+                --     { name = 'render-markdown' },
+                --     {
+                --         name = "lazydev",
+                --         group_index = 0, -- set group index to 0 to skip loading LuaLS completions
+                --     },
+                -- },
+                sources = cmp.config.sources({
+                    { name = 'luasnip' },
+                    { name = "lazydev", group_index = 0 },
+                    { name = "nvim_lsp" },
+                    { name = "path" },
+                    -- { name = "nvim_lsp_signature_help" },
+                }, {
+                    { name = "buffer" },
+                }),
                 mapping = cmp.mapping.preset.insert({
                     ['<C-Space>'] = cmp.mapping.complete(),
                     ['<C-u>'] = cmp.mapping.scroll_docs(-4),
@@ -54,10 +98,10 @@ return {
                 }),
                 snippet = {
                     expand = function(args)
-                        vim.snippet.expand(args.body)
-                    end,
+                        require("luasnip").lsp_expand(args.body)
+                    end
                 },
-            })
+            }
         end
     },
 
@@ -152,7 +196,8 @@ return {
             }
 
             vim.lsp.config.gopls = {
-                cmd = { "gopls", "serve", "-mcp.listen=localhost:8092" },
+                -- cmd = { "gopls", "serve", "-mcp.listen=localhost:8092" },
+                cmd = { "gopls", "serve" },
                 settings = {
                     gopls = {
                         analyses = {
